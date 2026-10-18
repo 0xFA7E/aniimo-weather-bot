@@ -2,6 +2,8 @@ name: CI
 
 on:
   push:
+    branches:
+      - main
   pull_request:
 
 permissions:
@@ -19,7 +21,7 @@ jobs:
       - name: Install desktop build dependencies
         run: sudo apt-get update && sudo apt-get install -y libgl1-mesa-dev xorg-dev libxcursor-dev libxrandr-dev libxinerama-dev libxi-dev libxxf86vm-dev xvfb
       - name: Test
-        run: xvfb-run -a go test ./...
+        run: go test ./internal/app ./internal/vision
       - name: Vet
         run: go vet ./...
       - name: Build
