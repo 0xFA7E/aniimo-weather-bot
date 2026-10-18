@@ -51,7 +51,7 @@ jobs:
           $archive = "AniimoWeather-$env:GITHUB_REF_NAME-windows-x64.zip"
           Compress-Archive -Path "dist/AniimoWeather" -DestinationPath "dist/$archive" -CompressionLevel Optimal
           $hash = (Get-FileHash "dist/$archive" -Algorithm SHA256).Hash.ToLower()
-          "$hash  $archive" | Set-Content "dist/$archive.sha256"
+          [IO.File]::WriteAllText("dist/$archive.sha256", "$hash  $archive`n", [Text.UTF8Encoding]::new($false))
 
       - name: Publish GitHub Release
         shell: pwsh
