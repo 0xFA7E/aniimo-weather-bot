@@ -67,6 +67,7 @@ func TestSaveConfigRoundTrip(t *testing.T) {
 	want.SteamUserLabel = "GUI Player"
 	want.ForecastRefreshReminder = true
 	want.ForecastRefreshMinutesBefore = 10
+	want.LogPath = filepath.Join(t.TempDir(), "weather.log")
 	if err := SaveConfig(path, want); err != nil {
 		t.Fatal(err)
 	}
@@ -74,7 +75,7 @@ func TestSaveConfigRoundTrip(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got.SteamUserLabel != want.SteamUserLabel || !got.ForecastRefreshReminder || got.ForecastRefreshMinutesBefore != 10 {
+	if got.SteamUserLabel != want.SteamUserLabel || !got.ForecastRefreshReminder || got.ForecastRefreshMinutesBefore != 10 || got.LogPath != want.LogPath {
 		t.Fatalf("got=%+v", got)
 	}
 }

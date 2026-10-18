@@ -51,6 +51,18 @@ func TestFirstRunBaselinesExistingScreenshots(t *testing.T) {
 	}
 }
 
+func TestAniimoScreenshotDirsFindsConfiguredSteamUserdata(t *testing.T) {
+	root := t.TempDir()
+	want := filepath.Join(root, "123456", "760", "remote", steamAppID, "screenshots")
+	if err := os.MkdirAll(filepath.Join(want, "thumbnails"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	got := aniimoScreenshotDirs([]string{root})
+	if len(got) != 1 || got[0] != want {
+		t.Fatalf("got %v, want [%s]", got, want)
+	}
+}
+
 func TestScanOnlyProcessesScreenshotInsideCursorWindow(t *testing.T) {
 	root := t.TempDir()
 	screenshotDir := filepath.Join(root, "760", "remote", steamAppID, "screenshots")
@@ -74,7 +86,7 @@ func TestScanOnlyProcessesScreenshotInsideCursorWindow(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := scan(cfg, map[string]bool{}, reminders, now.Add(-time.Second), now.Add(time.Second)); err != nil {
+	if err := scan(cfg, map[string]bool{}, reminders, now.Add(-time.Second), now.Add(time.Second), nil); err != nil {
 		t.Fatal(err)
 	}
 	b, err := os.ReadFile(filepath.Join(dataDir, "observations.jsonl"))

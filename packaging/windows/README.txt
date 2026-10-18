@@ -7,6 +7,12 @@ ANIIMO WEATHER FOR WINDOWS
 4. Click "Save and restart monitor".
 5. Open Aniimo's weather forecast and take a Steam screenshot (F12 by default).
 
+The activity panel will say whether an Aniimo screenshot folder was found. If
+it was not, expand Advanced and add the Steam userdata folder shown by Steam's
+installation (for example D:\Steam\userdata), then save and restart the monitor.
+For future bug reports, Advanced also has an optional Diagnostic log file field.
+Choose a writable path, reproduce the problem, then attach that log file.
+
 Keep the tesseract folder beside AniimoWeather.exe. It contains the bundled OCR
 engine, so no separate Go, Python, or Tesseract installation is required.
 

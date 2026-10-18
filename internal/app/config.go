@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"runtime"
 )
 
 type Config struct {
@@ -14,6 +13,7 @@ type Config struct {
 	DataDir                      string       `json:"data_dir"`
 	PollSeconds                  int          `json:"poll_seconds"`
 	TesseractPath                string       `json:"tesseract_path,omitempty"`
+	LogPath                      string       `json:"log_path,omitempty"`
 	DiscordWebhookURL            string       `json:"discord_webhook_url,omitempty"`
 	SteamUserLabel               string       `json:"steam_user_label,omitempty"`
 	ReminderMinutesBefore        int          `json:"reminder_minutes_before"`
@@ -49,6 +49,7 @@ func LoadConfig(explicit string) (Config, string, error) {
 	if err := json.Unmarshal(b, &cfg); err != nil {
 		return Config{}, path, fmt.Errorf("parse %s: %w", path, err)
 	}
+	cfg.ScreenshotDirs = mergePaths(cfg.ScreenshotDirs, defaultScreenshotDirs())
 	if cfg.PollSeconds < 1 {
 		cfg.PollSeconds = 2
 	}
@@ -83,17 +84,27 @@ func EnsureConfig(path string, cfg Config) error {
 
 func defaultConfig() Config {
 	base, _ := os.UserConfigDir()
-	cfg := Config{DataDir: filepath.Join(base, "aniimo-weather-bot"), PollSeconds: 2, ReminderMinutesBefore: 5, ForecastRefreshMinutesBefore: 5}
-	if runtime.GOOS == "linux" {
-		home, _ := os.UserHomeDir()
-		cfg.ScreenshotDirs = []string{
-			filepath.Join(home, ".local", "share", "Steam", "userdata"),
-			filepath.Join(home, ".var", "app", "com.valvesoftware.Steam", ".local", "share", "Steam", "userdata"),
-		}
-	} else if runtime.GOOS == "windows" {
-		cfg.ScreenshotDirs = []string{filepath.Join(os.Getenv("ProgramFiles(x86)"), "Steam", "userdata")}
+	return Config{
+		ScreenshotDirs: defaultScreenshotDirs(),
+		DataDir:        filepath.Join(base, "aniimo-weather-bot"), PollSeconds: 2,
+		ReminderMinutesBefore: 5, ForecastRefreshMinutesBefore: 5,
 	}
-	return cfg
+}
+
+func mergePaths(configured, discovered []string) []string {
+	result := make([]string, 0, len(configured)+len(discovered))
+	seen := make(map[string]bool)
+	for _, group := range [][]string{configured, discovered} {
+		for _, path := range group {
+			path = filepath.Clean(path)
+			if path == "." || seen[path] {
+				continue
+			}
+			seen[path] = true
+			result = append(result, path)
+		}
+	}
+	return result
 }
 
 func SaveConfig(path string, cfg Config) error {

@@ -71,6 +71,11 @@ lead times, screenshot locations, and Tesseract path without hand-editing JSON.
 It also lists pending alerts and can cancel any one of them. Settings use the
 desktop's system light/dark palette.
 
+Advanced settings can optionally enable a timestamped diagnostic log. It records
+monitor startup, discovered screenshot roots, screenshot paths, classification
+results, and OCR errors for bug reports; the Discord webhook is never written
+to this log.
+
 `--headless` preserves terminal-only operation, and `--once` performs one scan
 without opening the GUI.
 
@@ -83,7 +88,11 @@ is used.
 
 On first run, a platform-appropriate `config.json` is created under the user's
 configuration directory. Steam AppID `4126040` screenshot directories beneath
-configured Steam `userdata` roots are discovered automatically.
+configured Steam `userdata` roots are discovered automatically. On Windows the
+Steam install location is also read from the registry, so Steam installations
+on a custom drive do not need to be entered manually. The activity panel reports
+whether an Aniimo screenshot folder was found and whether each new screenshot
+was recognized as a forecast.
 
 To enable Discord alerts, add the webhook URL to that local file:
 

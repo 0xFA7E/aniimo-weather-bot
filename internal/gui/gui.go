@@ -90,6 +90,9 @@ func (c *controller) build() fyne.CanvasObject {
 	tesseract := widget.NewEntry()
 	tesseract.SetText(c.cfg.TesseractPath)
 	tesseract.SetPlaceHolder("Bundled automatically, or choose a custom executable")
+	diagnosticLog := widget.NewEntry()
+	diagnosticLog.SetText(c.cfg.LogPath)
+	diagnosticLog.SetPlaceHolder("Optional path, for example C:\\Users\\you\\Desktop\\aniimo-weather.log")
 
 	form := widget.NewForm(
 		widget.NewFormItem("Discord webhook", webhook),
@@ -101,6 +104,7 @@ func (c *controller) build() fyne.CanvasObject {
 	advanced := widget.NewAccordion(widget.NewAccordionItem("Advanced", container.NewVBox(
 		widget.NewLabel("Steam userdata folders (one per line)"), screenshotDirs,
 		widget.NewLabel("Tesseract executable"), tesseract,
+		widget.NewLabel("Diagnostic log file (optional)"), diagnosticLog,
 	)))
 
 	save := widget.NewButtonWithIcon("Save and restart monitor", theme.DocumentSaveIcon(), func() {
@@ -126,6 +130,7 @@ func (c *controller) build() fyne.CanvasObject {
 		next.ForecastRefreshMinutesBefore = refreshMinutes
 		next.ScreenshotDirs = dirs
 		next.TesseractPath = strings.TrimSpace(tesseract.Text)
+		next.LogPath = strings.TrimSpace(diagnosticLog.Text)
 		if err := weather.SaveConfig(c.configPath, next); err != nil {
 			c.setStatusUI("Could not save: " + err.Error())
 			return
