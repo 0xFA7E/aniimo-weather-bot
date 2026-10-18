@@ -8,8 +8,11 @@ import (
 	"image/color"
 	"image/png"
 	"math"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
+	"runtime"
 	"sort"
 	"strconv"
 	"strings"
@@ -68,12 +71,10 @@ type word struct {
 // valid only when both the panel heading and a useful set of forecast rows are
 // independently recognized.
 func Extract(ctx context.Context, img image.Image, tesseract string) (Extraction, error) {
-	if tesseract == "" {
-		var err error
-		tesseract, err = exec.LookPath("tesseract")
-		if err != nil {
-			return Extraction{}, fmt.Errorf("find tesseract: %w", err)
-		}
+	var err error
+	tesseract, err = resolveTesseract(tesseract)
+	if err != nil {
+		return Extraction{}, err
 	}
 
 	words, err := runTSV(ctx, tesseract, img, 11)
@@ -128,6 +129,32 @@ func Extract(ctx context.Context, img image.Image, tesseract string) (Extraction
 	result.Valid = true
 	result.Reason = fmt.Sprintf("validated forecast heading and %d time rows", len(rows))
 	return result, nil
+}
+
+func resolveTesseract(configured string) (string, error) {
+	executable, _ := os.Executable()
+	return resolveTesseractAt(configured, executable, runtime.GOOS, exec.LookPath)
+}
+
+func resolveTesseractAt(configured, applicationExecutable, goos string, lookPath func(string) (string, error)) (string, error) {
+	if configured = strings.TrimSpace(configured); configured != "" {
+		return configured, nil
+	}
+	if applicationExecutable != "" {
+		name := "tesseract"
+		if goos == "windows" {
+			name += ".exe"
+		}
+		bundled := filepath.Join(filepath.Dir(applicationExecutable), "tesseract", name)
+		if info, statErr := os.Stat(bundled); statErr == nil && !info.IsDir() {
+			return bundled, nil
+		}
+	}
+	found, err := lookPath("tesseract")
+	if err != nil {
+		return "", fmt.Errorf("find tesseract: bundled OCR runtime is missing and tesseract is not on PATH: %w", err)
+	}
+	return found, nil
 }
 
 func runTSV(ctx context.Context, executable string, img image.Image, psm int) ([]word, error) {

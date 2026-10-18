@@ -1,0 +1,62 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    name: Windows x64 package
+    runs-on: windows-2025
+    env:
+      TESSERACT_VERSION: 5.5.3.20260724
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.26.x"
+          cache: true
+
+      - name: Verify toolchain
+        shell: pwsh
+        run: |
+          go version
+          gcc --version
+
+      - name: Test and build Windows GUI
+        shell: pwsh
+        run: |
+          $env:CGO_ENABLED = "1"
+          go test ./...
+          New-Item -ItemType Directory -Force -Path dist/AniimoWeather | Out-Null
+          go build -trimpath -ldflags "-s -w -H=windowsgui" -o dist/AniimoWeather/AniimoWeather.exe .
+
+      - name: Install and bundle portable OCR runtime
+        shell: pwsh
+        run: |
+          choco install tesseract --version $env:TESSERACT_VERSION --yes --no-progress
+          Copy-Item "$env:ProgramFiles/Tesseract-OCR" "dist/AniimoWeather/tesseract" -Recurse
+          Get-ChildItem "dist/AniimoWeather/tesseract/tessdata" -Filter "*.traineddata" |
+            Where-Object { $_.Name -notin @("eng.traineddata", "osd.traineddata") } |
+            Remove-Item -Force
+          Copy-Item "packaging/windows/README.txt" "dist/AniimoWeather/README.txt"
+
+      - name: Create release archive and checksum
+        shell: pwsh
+        run: |
+          $archive = "AniimoWeather-$env:GITHUB_REF_NAME-windows-x64.zip"
+          Compress-Archive -Path "dist/AniimoWeather" -DestinationPath "dist/$archive" -CompressionLevel Optimal
+          $hash = (Get-FileHash "dist/$archive" -Algorithm SHA256).Hash.ToLower()
+          "$hash  $archive" | Set-Content "dist/$archive.sha256"
+
+      - name: Publish GitHub Release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $archive = "AniimoWeather-$env:GITHUB_REF_NAME-windows-x64.zip"
+          gh release create $env:GITHUB_REF_NAME "dist/$archive" "dist/$archive.sha256" --verify-tag --generate-notes --title "Aniimo Weather $env:GITHUB_REF_NAME"

@@ -29,7 +29,18 @@ Region, clock, and timezone OCR are best-effort metadata because the animated
 header background can obscure them. Forecast validation does not depend on
 those fields.
 
-## Prerequisite
+## Download for Windows
+
+Windows users do not need Go, Python, or a separate OCR installation. Open the
+repository's [Releases](https://github.com/0xFA7E/aniimo-weather-bot/releases)
+page, download the latest `windows-x64.zip`, extract the complete folder, and
+double-click `AniimoWeather.exe`. Keep the included `tesseract` folder beside
+the executable.
+
+Windows SmartScreen may warn about the executable because community releases
+are not code-signed. Each release includes a SHA-256 checksum for verification.
+
+## Linux prerequisite
 
 Install Tesseract with English language data. On Debian/Ubuntu:
 
@@ -37,8 +48,7 @@ Install Tesseract with English language data. On Debian/Ubuntu:
 sudo apt install tesseract-ocr tesseract-ocr-eng
 ```
 
-On Windows, `tesseract_path` in `config.json` can point to a bundled
-`tesseract.exe`.
+Developer builds can use `tesseract_path` to select a custom OCR executable.
 
 ## Development
 
@@ -127,10 +137,9 @@ region supersedes the older refresh prompt. Both kinds of pending reminder are
 durable across restarts and appear in the GUI, where they can be cancelled
 individually.
 
-## Packaging
+## Packaging and releases
 
-The GUI uses Fyne and builds natively on Linux and Windows. End users need only
-the packaged application and Tesseract; they do not need Go or Python. A native
+The GUI uses Fyne and builds natively on Linux and Windows. A native development
 build is:
 
 ```sh
@@ -140,6 +149,10 @@ go build -o aniimo-weather-bot .
 Fyne's desktop driver uses CGO, so producing a Windows executable on Linux also
 requires a MinGW cross-compiler (or `fyne-cross`). Building on a Windows build
 machine avoids that extra cross-toolchain requirement.
+
+Pushing a version tag such as `v0.1.0` runs the release workflow on a Windows
+runner. It publishes a Windows x64 zip containing the GUI application, the
+English Tesseract OCR runtime, instructions, and a SHA-256 checksum.
 
 The first launch writes `state.json` with the current time and deliberately
 ignores screenshots that already exist. Later scans process only files newer

@@ -2,8 +2,11 @@ package vision
 
 import (
 	"context"
+	"errors"
 	"image/jpeg"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"testing"
 )
 
@@ -106,5 +109,30 @@ func TestClockRegexAcceptsOCRPeriodBeforeMeridiem(t *testing.T) {
 	got := clockRE.FindString("Beast Fang Ridge 06:32:51.PM")
 	if got != "06:32:51.PM" {
 		t.Fatalf("got %q", got)
+	}
+}
+
+func TestResolveTesseractPrefersBundledWindowsRuntime(t *testing.T) {
+	root := t.TempDir()
+	appPath := filepath.Join(root, "AniimoWeather.exe")
+	bundled := filepath.Join(root, "tesseract", "tesseract.exe")
+	if err := os.MkdirAll(filepath.Dir(bundled), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(bundled, []byte("test"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	got, err := resolveTesseractAt("", appPath, "windows", func(string) (string, error) {
+		return "", errors.New("PATH should not be used")
+	})
+	if err != nil || got != bundled {
+		t.Fatalf("got %q, %v; want %q", got, err, bundled)
+	}
+}
+
+func TestResolveTesseractHonorsConfiguredPath(t *testing.T) {
+	got, err := resolveTesseractAt(`C:\\OCR\\custom.exe`, "", "windows", exec.LookPath)
+	if err != nil || got != `C:\\OCR\\custom.exe` {
+		t.Fatalf("got %q, %v", got, err)
 	}
 }

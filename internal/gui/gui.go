@@ -89,7 +89,7 @@ func (c *controller) build() fyne.CanvasObject {
 	screenshotDirs.SetMinRowsVisible(3)
 	tesseract := widget.NewEntry()
 	tesseract.SetText(c.cfg.TesseractPath)
-	tesseract.SetPlaceHolder("tesseract (use PATH by default)")
+	tesseract.SetPlaceHolder("Bundled automatically, or choose a custom executable")
 
 	form := widget.NewForm(
 		widget.NewFormItem("Discord webhook", webhook),
