@@ -76,6 +76,19 @@ monitor startup, discovered screenshot roots, screenshot paths, classification
 results, and OCR errors for bug reports; the Discord webhook is never written
 to this log.
 
+### Windows security warning
+
+The Windows executable is not code-signed. Microsoft Defender SmartScreen may
+therefore show **Unknown publisher** or **Windows protected your PC**, especially
+for a new release with little download reputation. This warning does not by
+itself mean Defender detected malware. Download only from this repository's
+Releases page and compare the ZIP against the accompanying `.sha256` file before
+running it.
+
+Do not bypass a warning that names a specific malware or threat. Report the
+detection name and affected release so it can be investigated. Avoid downloading
+copies redistributed by third parties.
+
 `--headless` preserves terminal-only operation, and `--once` performs one scan
 without opening the GUI.
 

@@ -19,9 +19,18 @@ engine, so no separate Go, Python, or Tesseract installation is required.
 Closing the window hides the application in the system tray. Use Quit from the
 tray menu when you want to stop monitoring.
 
-Windows may show a SmartScreen warning because this community-built executable
-is not code-signed. Use the SHA-256 file on the GitHub Release page to verify the
-download if desired.
+WINDOWS SECURITY NOTICE
+-----------------------
+
+This community-built executable is not code-signed. Microsoft Defender
+SmartScreen may therefore show "Unknown publisher" or "Windows protected your
+PC", particularly while a release has little download reputation. That warning
+alone does not mean malware was detected.
+
+Download only from the official GitHub Releases page and verify the ZIP using
+the accompanying .sha256 file. Do not bypass a warning that gives a specific
+malware or threat name; report that detection and the release version so it can
+be investigated. Avoid copies redistributed by third parties.
 
 This package includes Tesseract OCR and its runtime dependencies. Their license
 and notice files are retained inside the tesseract folder.
