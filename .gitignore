@@ -1,0 +1,9 @@
+/weatherbot
+/dist/
+/testdata/*.jpg
+/config.json
+*.exe
+*.log
+.idea/
+.vscode/
+.DS_Store

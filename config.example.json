@@ -1,0 +1,7 @@
+{
+  "discord_webhook_url": "",
+  "steam_user_label": "CHANGE ME",
+  "reminder_minutes_before": 5,
+  "forecast_refresh_reminder": false,
+  "forecast_refresh_minutes_before": 5
+}

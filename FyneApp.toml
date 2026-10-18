@@ -1,0 +1,10 @@
+[Details]
+  Name = "Aniimo Weather"
+  ID = "io.aniimo.weatherbot"
+  Version = "0.1.0"
+  Build = 1
+
+[LinuxAndBSD]
+  GenericName = "Weather Companion"
+  Categories = ["Game", "Utility"]
+  Comment = "Screenshot-powered Aniimo weather alerts"
